@@ -1,0 +1,5 @@
+{
+  "name": "MoodMapper",
+  "forwardPorts": [7860],
+  "postCreateCommand": "pip install -r requirements.txt"
+}
