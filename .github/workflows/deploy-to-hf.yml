@@ -1,0 +1,44 @@
+name: Deploy to Hugging Face Space
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install huggingface_hub
+
+      - name: Push to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python - << 'PY'
+from huggingface_hub import HfApi, create_repo, upload_folder
+SPACE_ID = "ambieeee/moodmapper"  # adapte avec ton pseudo
+api = HfApi(token="${{ secrets.HF_TOKEN }}")
+# crée l'espace s'il n'existe pas
+try:
+    create_repo(SPACE_ID, repo_type="space", space_sdk="gradio", private=False)
+except Exception:
+    pass
+# envoie tous les fichiers du repo à l'espace
+upload_folder(
+    repo_id=SPACE_ID,
+    repo_type="space",
+    folder_path=".",
+    path_in_repo=".",
+)
+PY
